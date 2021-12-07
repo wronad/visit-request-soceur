@@ -38,13 +38,16 @@
                         </div>
                         <div class="col-10">
                             <div class="row">
-                                <div class="col-10">
+                                <div class="col-7">
                                         <ul class="nav nav-tabs">
                                             <li class="active"><a onclick="changeTab('DIRECTORATE')"  class="h6" data-toggle="tab" href="#DIRECTORATE">Directorate/Collateral Requests</a></li>
                                             <li><a onclick="changeTab('SSO')"  class="h6"  data-toggle="tab" href="#SSO">SSO/SCI  Requests</a></li>
                                             <li><a onclick="changeTab('APPROVED')"  class="h6" data-toggle="tab" href="#APPROVED">Approved Requests</a></li>
                                             <!--<li><a onclick="changeTab('ARCHIVED')" class="h6" data-toggle="tab" href="#ARCHIVED">Archived Requests</a></li>-->
                                         </ul> 
+                                </div>
+                                <div class="col-3">
+                                    <input class="form-control shadow-sm" type="text" id="userName" onkeyup="filterByName()" placeholder="Filter by POC or Visitor">
                                 </div>
                                 <div class="col-2">
                                     <input class="form-control shadow-sm" type="text" id="myInput" onkeyup="myFunction()" placeholder="Filter by Directorate">
@@ -147,8 +150,15 @@
         </div>
     <script type="text/javascript">
         function changeTab(stat){
-            $("#currentTab").text(stat);
-            loadRequestsByStatus(stat);
+            const tab = document.getElementById("currentTab").innerText;
+            if (tab !== stat) {
+                // reset filters
+                document.getElementById("userName").value = "";
+                document.getElementById("myInput").value = "";
+                
+                $("#currentTab").text(stat);
+                loadRequestsByStatus(stat);
+            }
         }
         function changeListContent(){   $("#mySelEmails").val(lookupEmails( $("#chooseGroup option:selected").val()));      }
         function updateSelectedEmailList(){    
@@ -185,7 +195,12 @@
                 }       
               }
             }
-     </script>
+    </script>
+    <script type="text/javascript">
+        function filterByName() {
+        //   todo
+        }
+    </script>
 
 </form>
 </body>
