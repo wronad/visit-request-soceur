@@ -208,8 +208,7 @@
                                 if (lastCol > 0) {
                                     const requestPocOrVisitors =
                                         requestInfo[lastCol]
-                                        .innerHTML
-                                        .toUpperCase();
+                                        .innerHTML;
                                     if (requestPocOrVisitors &&
                                         requestPocOrVisitors.indexOf(
                                             name.toUpperCase()) > -1) {

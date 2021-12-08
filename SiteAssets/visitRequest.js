@@ -357,7 +357,7 @@ function loadRequestsByStatus(stats) {
             let requestorVisitorNamesStr = "";
             var myJSON = JSON.parse($(this).attr(REQSTR));
             if (myJSON && myJSON.pocName) {
-              requestorVisitorNamesStr = myJSON.pocName;
+              requestorVisitorNamesStr = decodeURI(myJSON.pocName);
             }
 
             // get all visitor names
