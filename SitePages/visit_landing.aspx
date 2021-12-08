@@ -47,10 +47,10 @@
                                         </ul> 
                                 </div>
                                 <div class="col-3">
-                                    <input class="form-control shadow-sm" type="text" id="userName" onkeyup="filterByName()" placeholder="Filter by POC or Visitor">
+                                    <input class="form-control shadow-sm" type="text" id="filterUser" onblur="filterVisitRequests()" placeholder="Filter by Requestor or Visitor">
                                 </div>
                                 <div class="col-2">
-                                    <input class="form-control shadow-sm" type="text" id="myInput" onkeyup="myFunction()" placeholder="Filter by Directorate">
+                                    <input class="form-control shadow-sm" type="text" id="filterDirectorate" onblur="filterVisitRequests()" placeholder="Filter by Directorate">
                                 </div>
                             </div>
                             <div class="row">
@@ -153,8 +153,8 @@
             const tab = document.getElementById("currentTab").innerText;
             if (tab !== stat) {
                 // reset filters
-                document.getElementById("userName").value = "";
-                document.getElementById("myInput").value = "";
+                document.getElementById("filterUser").value = "";
+                document.getElementById("filterDirectorate").value = "";
                 
                 $("#currentTab").text(stat);
                 loadRequestsByStatus(stat);
@@ -177,28 +177,52 @@
         });
     </script>
     <script type="text/javascript">
-            function myFunction() {
-              var input, filter, table, tr, td, i, txtValue;
-              input = document.getElementById("myInput");
-              filter = input.value.toUpperCase();
-              table = document.getElementById("myRequests");
-              tr = table.getElementsByTagName("tr");
-              for (i = 0; i < tr.length; i++) {
-                td = tr[i].getElementsByTagName("td")[0] ;
-                if (td) {
-                  txtValue = td.textContent || td.innerText;
-                  if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                    tr[i].style.display = "";
-                  } else {
-                    tr[i].style.display = "none";
-                  }
-                }       
-              }
+        function filterVisitRequests() {
+            let directorate = document.getElementById("filterDirectorate").value;
+            let name = document.getElementById("filterUser").value;
+            const visitRequests = document.getElementById("myRequests");
+            if (visitRequests) {
+                const visitRequest =visitRequests.getElementsByTagName("tr");
+                if (visitRequest && visitRequest.length) {
+                    for (i = 0; i < visitRequest.length; i++) {
+                        const requestInfo = visitRequest[i]
+                            .getElementsByTagName("td");
+                        if (requestInfo && requestInfo.length) {
+                            let match = true;
+                            // filter by directorate
+                            if (directorate) {
+                                match = false;
+                                const requestDir = requestInfo[0]
+                                    .innerHTML
+                                    .toUpperCase();
+                                if (requestDir &&
+                                    requestDir.indexOf(
+                                        directorate.toUpperCase()) > -1) {
+                                    match = true;
+                                }
+                            }
+                            // filter by requestor or visitors
+                            if (match && name) {
+                                match = false;
+                                const lastCol = requestInfo.length - 1;
+                                if (lastCol > 0) {
+                                    const requestPocOrVisitors =
+                                        requestInfo[lastCol]
+                                        .innerHTML
+                                        .toUpperCase();
+                                    if (requestPocOrVisitors &&
+                                        requestPocOrVisitors.indexOf(
+                                            name.toUpperCase()) > -1) {
+                                        match = true;
+                                    }
+                                }
+                            }
+                            match ? visitRequest[i].style.display = "" :
+                                visitRequest[i].style.display = "none";
+                        }
+                    }
+                }
             }
-    </script>
-    <script type="text/javascript">
-        function filterByName() {
-        //   todo
         }
     </script>
 

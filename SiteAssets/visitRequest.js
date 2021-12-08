@@ -5,6 +5,12 @@ AUTHOR: WESTON SEAL
 DESCRIPTION: THIS APPLICATION HANDLES NOTIFICATIONS OF NEW AND INCOMING VISITS TO THE COMMAND
 
 */
+const ROW = "<tr>";
+const COL = "<td>";
+const COL_END = "</td>";
+const REQSTR = "ows_visitRequestor";
+const VSTR = "ows_visitVisitors";
+
 function myList() {
   return "SOCEUR_VISITS";
 }
@@ -12,10 +18,10 @@ function emailDirList() {
   return "securityEmails";
 }
 function myVersion() {
-  return "VERSION 1.1.3 JUNE 2019";
+  return "VERSION 1.1.4 DEC 2021";
 }
 function myCreator() {
-  return "SOCEUR J69 PROCESS IMPROVEMENT AND APPLICATION DEVELOPMENT  EMAIL: SOCEURLISTJ69@SOCOM.MIL ";
+  return "SOCEUR J63 APPLICATION DEVELOPMENT  EMAIL: SOCEURLISTJ63@SOCOM.MIL ";
 }
 function myURI() {
   return "https://soceur.sof.socom.mil/security/";
@@ -254,10 +260,10 @@ function loadMyExistingRequest() {
       $(xData.responseXML)
         .SPFilterNode("z:row")
         .each(function () {
-          var visitors = $(this).attr("ows_visitVisitors");
+          var visitors = $(this).attr(VSTR);
           var visits = $(this).attr("ows_visitApprovals");
 
-          var myJ = JSON.parse($(this).attr("ows_visitRequestor"));
+          var myJ = JSON.parse($(this).attr(REQSTR));
           $("#pocName").val(decodeURI(myJ.pocName));
           $("#pocDSN").val(decodeURI(myJ.pocDSN));
           $("#pocEmail").val(decodeURI(myJ.pocEmail));
@@ -280,9 +286,8 @@ function loadMyExistingRequest() {
           $("#visitCreator").text(decodeURI(myJ.visitCreator));
           $("#visitCreateDate").text(decodeURI(myJ.visitCreateDate));
           if (typeof visitors !== "undefined") {
-            $("#myVisitors tbody").html(
-              decodeURI($(this).attr("ows_visitVisitors"))
-            ); //look at removing the checkboxes
+            //look at removing the checkboxes
+            $("#myVisitors tbody").html(decodeURI($(this).attr(VSTR)));
           }
           $("#addVisitorsForm").css("display", "none");
           $("#mySubmit").css("display", "none");
@@ -337,7 +342,7 @@ function loadRequestsByStatus(stats) {
     stats +
     "</Value></Eq></Where><OrderBy><FieldRef Name='DIRECTORATE' Ascending='True' /><FieldRef Name='Created' /></OrderBy></Query>";
   var viewFields =
-    "<ViewFields><FieldRef Name='DIRECTORATE' /><FieldRef Name='visitRequestor' /><FieldRef  Name='ID' /></ViewFields>";
+    "<ViewFields><FieldRef Name='DIRECTORATE' /><FieldRef Name='visitRequestor' /><FieldRef  Name='ID' /><FieldRef Name='visitVisitors' /></ViewFields>";
   $().SPServices({
     operation: "GetListItems",
     async: false,
@@ -349,7 +354,31 @@ function loadRequestsByStatus(stats) {
         .SPFilterNode("z:row")
         .each(function () {
           try {
-            var myJSON = JSON.parse($(this).attr("ows_visitRequestor"));
+            let requestorVisitorNamesStr = "";
+            var myJSON = JSON.parse($(this).attr(REQSTR));
+            if (myJSON && myJSON.pocName) {
+              requestorVisitorNamesStr = myJSON.pocName;
+            }
+
+            // get all visitor names
+            const visitors = $(this).attr(VSTR);
+            if (visitors) {
+              let rows = decodeURI(visitors).split(ROW);
+              if (rows.length > 1) {
+                rows.shift();
+                if (rows.length) {
+                  let cols = rows[0].split(COL);
+                  if (cols.length > 3) {
+                    requestorVisitorNamesStr += cols[3].replace(COL_END, "");
+                  }
+                  if (cols.length > 2) {
+                    requestorVisitorNamesStr += cols[2].replace(COL_END, "");
+                  }
+                }
+              }
+            }
+            requestorVisitorNamesStr = requestorVisitorNamesStr.toUpperCase();
+
             var t =
               "<a href='" +
               form() +
@@ -369,11 +398,13 @@ function loadRequestsByStatus(stats) {
               myJSON.visitStartDate +
               "</td><td>" +
               myJSON.visitEndDate +
+              '</td><td class="hide">' +
+              requestorVisitorNamesStr +
               "</td></tr>";
             $("#myRequests").append(row);
           } catch (error) {
             console.error("Error", $(this).attr("ows_ID"));
-            console.error("Error", $(this).attr("ows_visitRequestor"));
+            console.error("Error", $(this).attr(REQSTR));
           }
         });
     },
